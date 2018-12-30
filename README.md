@@ -24,8 +24,8 @@ Binary version
 
 Download the latest release:
 
-* JAR file with dependencies: [secrete.zip](https://pkg.nharyes.net/secrete/secrete.zip)
-* GPG Signature: [secrete.zip.sig](https://pkg.nharyes.net/secrete/secrete.zip.sig)
+* JAR file with dependencies: [secrete.zip](https://pkg.naes.co/secrete/secrete.zip)
+* GPG Signature: [secrete.zip.sig](https://pkg.naes.co/secrete/secrete.zip.sig)
 
 Usage
 -----
