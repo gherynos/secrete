@@ -22,10 +22,7 @@ Many thanks to [Trevor Bernard](https://github.com/trevorbernard) and the guys o
 Binary version
 --------------
 
-Download the latest release:
-
-* JAR file with dependencies: [secrete.zip](https://pkg.naes.co/secrete/secrete.zip)
-* GPG Signature: [secrete.zip.sig](https://pkg.naes.co/secrete/secrete.zip.sig)
+The binary distribution can be downloaded from the [releases](https://github.com/gherynos/secrete/releases) page.
 
 Usage
 -----
@@ -90,20 +87,12 @@ $ java -jar secrete.jar -i <encrypted_file> -o <decrypted_file> decrypt
 
 Insert the password to unlock the private key.
 
-Copyright and license
----------------------
+Author
+-----
 
-Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+> GitHub [@gherynos](https://github.com/gherynos)
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+License
+-----
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Secrete is licensed under the [GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.html).
