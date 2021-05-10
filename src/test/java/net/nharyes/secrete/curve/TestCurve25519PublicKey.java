@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -30,25 +30,25 @@ import org.junit.Test;
 
 public class TestCurve25519PublicKey {
 
-	@Test
-	public void testPublicKeySerialization() throws Exception {
+    @Test
+    public void testPublicKeySerialization() throws Exception {
 
-		KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
+        KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
 
-		Curve25519PublicKey pkey = (Curve25519PublicKey) keyPair.getPublic();
+        Curve25519PublicKey pkey = (Curve25519PublicKey) keyPair.getPublic();
 
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
-		pkey.serialize(bout);
+        pkey.serialize(bout);
 
-		byte[] serialized = bout.toByteArray();
+        byte[] serialized = bout.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
+        ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
 
-		Curve25519PublicKey pkeyCopy = Curve25519PublicKey.deserialize(bin);
+        Curve25519PublicKey pkeyCopy = Curve25519PublicKey.deserialize(bin);
 
-		assertEquals(pkey.getAlgorithm(), pkeyCopy.getAlgorithm());
-		assertEquals(pkey.getFormat(), pkeyCopy.getFormat());
-		assertArrayEquals(pkey.getEncoded(), pkeyCopy.getEncoded());
-	}
+        assertEquals(pkey.getAlgorithm(), pkeyCopy.getAlgorithm());
+        assertEquals(pkey.getFormat(), pkeyCopy.getFormat());
+        assertArrayEquals(pkey.getEncoded(), pkeyCopy.getEncoded());
+    }
 }

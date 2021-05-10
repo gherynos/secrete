@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -25,23 +25,27 @@ import djb.Curve25519;
 
 public class Curve25519DecryptionParameter extends KeyParameter {
 
-	private byte[] pointR;
-	
-	public Curve25519DecryptionParameter(byte[] privateKey, byte[] pointR) {
-		
-		super(privateKey);
-		
-		if (privateKey.length != Curve25519.KEY_SIZE)
-			throw new IllegalArgumentException("Wrong size for private key");
-		
-		if (pointR.length != Curve25519.KEY_SIZE)
-			throw new IllegalArgumentException("Wrong size for R");
-		
-		this.pointR = pointR;
-	}
-	
-	public byte[] getPointR() {
-		
-		return pointR;
-	}
+    private final byte[] pointR;
+
+    public Curve25519DecryptionParameter(byte[] privateKey, byte[] pointR) {
+
+        super(privateKey);
+
+        if (privateKey.length != Curve25519.KEY_SIZE) {
+
+            throw new IllegalArgumentException("Wrong size for private key");
+        }
+
+        if (pointR.length != Curve25519.KEY_SIZE) {
+
+            throw new IllegalArgumentException("Wrong size for R");
+        }
+
+        this.pointR = pointR;
+    }
+
+    public byte[] getPointR() {
+
+        return pointR;
+    }
 }

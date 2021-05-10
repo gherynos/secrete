@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -24,24 +24,28 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import djb.Curve25519;
 
 public class Curve25519EncryptionParameter extends KeyParameter {
-	
-	private byte[] scalarR;
-	
-	public Curve25519EncryptionParameter(byte[] publicKey, byte[] scalarR) {
-		
-		super(publicKey);
-		
-		if (publicKey.length != Curve25519.KEY_SIZE)
-			throw new IllegalArgumentException("Wrong size for public key");
-		
-		if (scalarR.length != Curve25519.KEY_SIZE)
-			throw new IllegalArgumentException("Wrong size for r");
-		
-		this.scalarR = scalarR;
-	}
 
-	public byte[] getScalarR() {
-		
-		return scalarR;
-	}
+    private final byte[] scalarR;
+
+    public Curve25519EncryptionParameter(byte[] publicKey, byte[] scalarR) {
+
+        super(publicKey);
+
+        if (publicKey.length != Curve25519.KEY_SIZE) {
+
+            throw new IllegalArgumentException("Wrong size for public key");
+        }
+
+        if (scalarR.length != Curve25519.KEY_SIZE) {
+
+            throw new IllegalArgumentException("Wrong size for r");
+        }
+
+        this.scalarR = scalarR;
+    }
+
+    public byte[] getScalarR() {
+
+        return scalarR;
+    }
 }

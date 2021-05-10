@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -21,13 +21,13 @@ package net.nharyes.secrete;
 
 import org.bouncycastle.util.encoders.Hex;
 
-public class MagicNumbers {
+public class MagicNumbersConstants {
 
-	public static final byte[] PRIVATE_KEY = Hex.decode("5ECC0DE0");
+    public static final byte[] PRIVATE_KEY = Hex.decode("5ECC0DE0");
 
-	public static final byte[] PUBLIC_KEY = Hex.decode("5ECC0DE1");
+    public static final byte[] PUBLIC_KEY = Hex.decode("5ECC0DE1");
 
-	public static final byte[] TEXT_MESSAGE = Hex.decode("5ECC0DE2");
+    public static final byte[] TEXT_MESSAGE = Hex.decode("5ECC0DE2");
 
-	public static final byte[] BINARY_MESSAGE = Hex.decode("5ECC0DE3");
+    public static final byte[] BINARY_MESSAGE = Hex.decode("5ECC0DE3");
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import net.nharyes.secrete.MagicNumbers;
+import net.nharyes.secrete.MagicNumbersConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.Arrays;
@@ -34,117 +34,127 @@ import djb.Curve25519;
 
 public class ECIESMessage {
 
-	private final byte[] sh1;
+    private final byte[] sh1;
 
-	private final byte[] sh2;
+    private final byte[] sh2;
 
-	private final byte[] iv;
+    private final byte[] iv;
 
-	private final byte[] R;
+    private final byte[] r;
 
-	private final byte[] cd;
+    private final byte[] cd;
 
-	private final boolean binary;
+    private final boolean binary;
 
-	protected ECIESMessage(byte[] sh1, byte[] sh2, byte[] iv, byte[] R, byte[] cd, boolean binary) {
+    protected ECIESMessage(byte[] sh1, byte[] sh2, byte[] iv, byte[] r, byte[] cd, boolean binary) {
 
-		this.sh1 = sh1;
-		this.sh2 = sh2;
-		this.iv = iv;
-		this.R = R;
-		this.cd = cd;
-		this.binary = binary;
-	}
+        this.sh1 = sh1;
+        this.sh2 = sh2;
+        this.iv = iv;
+        this.r = r;
+        this.cd = cd;
+        this.binary = binary;
+    }
 
-	public byte[] getSh1() {
+    public byte[] getSh1() {
 
-		return sh1;
-	}
+        return sh1;
+    }
 
-	public byte[] getSh2() {
+    public byte[] getSh2() {
 
-		return sh2;
-	}
+        return sh2;
+    }
 
-	public byte[] getIv() {
+    public byte[] getIv() {
 
-		return iv;
-	}
+        return iv;
+    }
 
-	public byte[] getR() {
+    public byte[] getR() {
 
-		return R;
-	}
+        return r;
+    }
 
-	public byte[] getCd() {
+    public byte[] getCd() {
 
-		return cd;
-	}
+        return cd;
+    }
 
-	public boolean isBinary() {
+    public boolean isBinary() {
 
-		return binary;
-	}
+        return binary;
+    }
 
-	public void serialize(OutputStream out) throws IOException {
+    public void serialize(OutputStream out) throws IOException {
 
-		// write magic number
-		if (binary)
-			out.write(MagicNumbers.BINARY_MESSAGE);
-		else
-			out.write(MagicNumbers.TEXT_MESSAGE);
+        // write magic number
+        if (binary) {
 
-		// write message components
-		out.write(sh1);
-		out.write(sh2);
-		out.write(iv);
-		out.write(R);
-		out.flush();
+            out.write(MagicNumbersConstants.BINARY_MESSAGE);
 
-		// write CD size
-		ByteBuffer b = ByteBuffer.allocate(4);
-		b.order(ByteOrder.BIG_ENDIAN);
-		b.putInt(cd.length);
-		out.write(b.array());
-		out.flush();
+        } else {
 
-		// write CD
-		out.write(cd);
-		out.flush();
-	}
+            out.write(MagicNumbersConstants.TEXT_MESSAGE);
+        }
 
-	public static ECIESMessage deserialize(InputStream in) throws IOException {
+        // write message components
+        out.write(sh1);
+        out.write(sh2);
+        out.write(iv);
+        out.write(r);
+        out.flush();
 
-		// check magic number
-		boolean binary;
-		byte[] mn = new byte[MagicNumbers.TEXT_MESSAGE.length];
-		IOUtils.readFully(in, mn, 0, mn.length);
-		if (Arrays.areEqual(mn, MagicNumbers.TEXT_MESSAGE))
-			binary = false;
-		else if (Arrays.areEqual(mn, MagicNumbers.BINARY_MESSAGE))
-			binary = true;
-		else
-			throw new IllegalArgumentException("Wrong file format");
+        // write CD size
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.order(ByteOrder.BIG_ENDIAN);
+        b.putInt(cd.length);
+        out.write(b.array());
+        out.flush();
 
-		// read message components
-		byte[] sh1 = new byte[ECIES.SHARED_INFORMATION_SIZE_BYTES];
-		IOUtils.readFully(in, sh1, 0, sh1.length);
-		byte[] sh2 = new byte[ECIES.SHARED_INFORMATION_SIZE_BYTES];
-		IOUtils.readFully(in, sh2, 0, sh2.length);
-		byte[] iv = new byte[ECIES.IV_SIZE_BYTES];
-		IOUtils.readFully(in, iv, 0, iv.length);
-		byte[] R = new byte[Curve25519.KEY_SIZE];
-		IOUtils.readFully(in, R, 0, R.length);
+        // write CD
+        out.write(cd);
+        out.flush();
+    }
 
-		// read CD size
-		byte[] cdSizeB = new byte[4];
-		IOUtils.readFully(in, cdSizeB, 0, cdSizeB.length);
-		int cdSize = ByteBuffer.wrap(cdSizeB).getInt();
+    public static ECIESMessage deserialize(InputStream in) throws IOException {
 
-		// read CD
-		byte[] cd = new byte[cdSize];
-		IOUtils.readFully(in, cd, 0, cd.length);
+        // check magic number
+        boolean binary;
+        byte[] mn = new byte[MagicNumbersConstants.TEXT_MESSAGE.length];
+        IOUtils.readFully(in, mn, 0, mn.length);
+        if (Arrays.areEqual(mn, MagicNumbersConstants.TEXT_MESSAGE)) {
 
-		return new ECIESMessage(sh1, sh2, iv, R, cd, binary);
-	}
+            binary = false;
+
+        } else if (Arrays.areEqual(mn, MagicNumbersConstants.BINARY_MESSAGE)) {
+
+            binary = true;
+
+        } else {
+
+            throw new IllegalArgumentException("Wrong file format");
+        }
+
+        // read message components
+        byte[] sh1 = new byte[ECIESHelper.SHARED_INFORMATION_SIZE_BYTES];
+        IOUtils.readFully(in, sh1, 0, sh1.length);
+        byte[] sh2 = new byte[ECIESHelper.SHARED_INFORMATION_SIZE_BYTES];
+        IOUtils.readFully(in, sh2, 0, sh2.length);
+        byte[] iv = new byte[ECIESHelper.IV_SIZE_BYTES];
+        IOUtils.readFully(in, iv, 0, iv.length);
+        byte[] r = new byte[Curve25519.KEY_SIZE];
+        IOUtils.readFully(in, r, 0, r.length);
+
+        // read CD size
+        byte[] cdSizeB = new byte[4];
+        IOUtils.readFully(in, cdSizeB, 0, cdSizeB.length);
+        int cdSize = ByteBuffer.wrap(cdSizeB).getInt();
+
+        // read CD
+        byte[] cd = new byte[cdSize];
+        IOUtils.readFully(in, cd, 0, cd.length);
+
+        return new ECIESMessage(sh1, sh2, iv, r, cd, binary);
+    }
 }

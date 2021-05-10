@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -31,40 +31,40 @@ import djb.Curve25519;
 
 public class TestCurve25519KeyPairGenerator {
 
-	@Test
-	public void testKeyGeneration() throws Exception {
+    @Test
+    public void testKeyGeneration() throws Exception {
 
-		KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
+        KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
 
-		assertEquals(keyPair.getPublic().getClass(), Curve25519PublicKey.class);
-		assertEquals(keyPair.getPublic().getAlgorithm(), "Curve25519");
-		assertEquals(keyPair.getPublic().getEncoded().length, Curve25519.KEY_SIZE);
+        assertEquals(keyPair.getPublic().getClass(), Curve25519PublicKey.class);
+        assertEquals(keyPair.getPublic().getAlgorithm(), "Curve25519");
+        assertEquals(keyPair.getPublic().getEncoded().length, Curve25519.KEY_SIZE);
 
-		assertEquals(keyPair.getPrivate().getClass(), Curve25519PrivateKey.class);
-		assertEquals(keyPair.getPrivate().getAlgorithm(), "Curve25519");
-		assertEquals(keyPair.getPrivate().getEncoded().length, Curve25519.KEY_SIZE);
-	}
+        assertEquals(keyPair.getPrivate().getClass(), Curve25519PrivateKey.class);
+        assertEquals(keyPair.getPrivate().getAlgorithm(), "Curve25519");
+        assertEquals(keyPair.getPrivate().getEncoded().length, Curve25519.KEY_SIZE);
+    }
 
-	@SuppressWarnings("serial")
-	@Test
-	public void testClamp() throws Exception {
+    @SuppressWarnings("serial")
+    @Test
+    public void testClamp() {
 
-		KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair(new SecureRandom() {
+        KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair(new SecureRandom() {
 
-			@Override
-			public synchronized void nextBytes(byte[] bytes) {
+            @Override
+            public synchronized void nextBytes(byte[] bytes) {
 
-				Arrays.fill(bytes, (byte) 112);
-			}
-		});
+                Arrays.fill(bytes, (byte) 112);
+            }
+        });
 
-		byte[] data = keyPair.getPrivate().getEncoded();
-		byte b1 = (byte) 112;
-		b1 &= 0xF8;
-		byte b2 = (byte) 112;
-		b2 &= 0x7F;
-		b2 |= 0x40;
-		assertEquals(data[0], b1);
-		assertEquals(data[31], b2);
-	}
+        byte[] data = keyPair.getPrivate().getEncoded();
+        byte b1 = (byte) 112;
+        b1 &= 0xF8;
+        byte b2 = (byte) 112;
+        b2 &= 0x7F;
+        b2 |= 0x40;
+        assertEquals(data[0], b1);
+        assertEquals(data[31], b2);
+    }
 }

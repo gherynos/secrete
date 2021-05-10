@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -31,22 +31,22 @@ import djb.Curve25519;
 
 public class TestCurve25519Agreement {
 
-	@Test
-	public void testAgreement() throws Exception {
+    @Test
+    public void testAgreement() throws Exception {
 
-		KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
+        KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
 
-		Curve25519Agreement agreement = new Curve25519Agreement();
+        Curve25519Agreement agreement = new Curve25519Agreement();
 
-		Random r = new Random();
-		byte[] scalarR = new byte[Curve25519.KEY_SIZE];
-		r.nextBytes(scalarR);
-		byte[] pointR = new byte[Curve25519.KEY_SIZE];
-		Curve25519.curve(pointR, scalarR, null);
+        Random r = new Random();
+        byte[] scalarR = new byte[Curve25519.KEY_SIZE];
+        r.nextBytes(scalarR);
+        byte[] pointR = new byte[Curve25519.KEY_SIZE];
+        Curve25519.curve(pointR, scalarR, null);
 
-		BigInteger i1 = agreement.calculateAgreement(new Curve25519EncryptionParameter(keyPair.getPublic().getEncoded(), scalarR));
-		BigInteger i2 = agreement.calculateAgreement(new Curve25519DecryptionParameter(keyPair.getPrivate().getEncoded(), pointR));
+        BigInteger i1 = agreement.calculateAgreement(new Curve25519EncryptionParameter(keyPair.getPublic().getEncoded(), scalarR));
+        BigInteger i2 = agreement.calculateAgreement(new Curve25519DecryptionParameter(keyPair.getPrivate().getEncoded(), pointR));
 
-		assertEquals(i1, i2);
-	}
+        assertEquals(i1, i2);
+    }
 }

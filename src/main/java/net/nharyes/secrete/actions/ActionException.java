@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -21,15 +21,15 @@ package net.nharyes.secrete.actions;
 
 public class ActionException extends Exception {
 
-	private static final long serialVersionUID = -7276634532862407623L;
+    private static final long serialVersionUID = -7276634532862407623L;
 
-	public ActionException(String message) {
+    public ActionException(String message) {
 
-		super(message);
-	}
+        super(message);
+    }
 
-	public ActionException(String message, Throwable ex) {
+    public ActionException(String message, Throwable ex) {
 
-		super(message, ex);
-	}
+        super(message, ex);
+    }
 }

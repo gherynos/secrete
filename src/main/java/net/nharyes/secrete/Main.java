@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -19,14 +19,13 @@
 
 package net.nharyes.secrete;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.nharyes.secrete.actions.Action;
 import net.nharyes.secrete.actions.ActionException;
@@ -44,162 +43,165 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class Main {
+public final class Main {  // NOPMD
 
-	/*
-	 * Version
-	 */
-	public static final String VERSION = "1.0.0";
+    /*
+     * Version
+     */
+    public static final String VERSION = "1.0.1";
 
-	/*
-	 * Constants
-	 */
-	private static final String DESCRIPTION = "ECIES implementation with Curve25519.";
-	private static final String JAR_FILE = "secrete.jar";
+    /*
+     * Constants
+     */
+    private static final String DESCRIPTION = "ECIES implementation with Curve25519.";
+    private static final String JAR_FILE = "secrete.jar";
 
-	// actions
-	private final Map<String, Action> actions = new HashMap<>();
+    // actions
+    private final Map<String, Action> actions = new ConcurrentHashMap<>();
 
-	// command line options
-	private final Options options = new Options();
+    // command line options
+    private final Options options = new Options();
 
-	private Main(String[] args) {
+    private Main(String[] args) {
 
-		// compose actions
-		composeActions();
+        // compose actions
+        composeActions();
 
-		// compose options
-		composeOptions();
+        // compose options
+        composeOptions();
 
-		// create the command line parser
-		CommandLineParser parser = new PosixParser();
+        // create the command line parser
+        CommandLineParser parser = new PosixParser();
 
-		try {
+        try {
 
-			// instantiate secure random
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            // parse the command line arguments
+            CommandLine line = parser.parse(options, args);
 
-			// parse the command line arguments
-			CommandLine line = parser.parse(options, args);
+            // check action
+            if (line.getArgs().length < 1) {  // NOPMD
 
-			// check action
-			if (line.getArgs().length < 1)
-				throw new ParseException("Please specify ACTION.");
-			if (!actions.containsKey(line.getArgs()[0]))
-				throw new ParseException(String.format("ACTION must be %s.", getActionsString()));
+                throw new ParseException("Please specify ACTION.");
+            }
+            if (!actions.containsKey(line.getArgs()[0])) {
 
-			// execute action
-			actions.get(line.getArgs()[0]).execute(line, random);
+                throw new ParseException(String.format("ACTION must be %s.", getActionsString()));
+            }
 
-		} catch (ParseException ex) {
+            // instantiate secure random
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 
-			// print help
-			HelpFormatter formatter = new HelpFormatter();
-			System.out.println("Secrete version " + VERSION);
-			System.out.println();
-			formatter.printHelp(String.format("java -jar %s [OPTIONS] <ACTION>", JAR_FILE), String.format("%s%n", DESCRIPTION), options, String.format("%nACTION can be %s.", getActionsString()));
-			System.out.println();
+            // execute action
+            actions.get(line.getArgs()[0]).execute(line, random);
 
-			// show error
-			System.out.println(String.format("!! %s%n", ex.getMessage()));
+        } catch (ParseException ex) {
 
-			// exit with error
-			System.exit(-1);
+            // print help
+            HelpFormatter formatter = new HelpFormatter();
+            System.out.println("Secrete version " + VERSION);
+            System.out.println();
+            formatter.printHelp(String.format("java -jar %s [OPTIONS] <ACTION>", JAR_FILE), String.format("%s%n", DESCRIPTION), options, String.format("%nACTION can be %s.", getActionsString()));
+            System.out.println();
 
-		} catch (NoSuchAlgorithmException | ActionException | IllegalArgumentException ex) {
+            // show error
+            System.out.printf("!! %s%n%n", ex.getMessage());
 
-			// show error
-			System.out.println(String.format("!! %s%n", ex.getMessage()));
+            // exit with error
+            System.exit(-1);
 
-			// exit with error
-			System.exit(-1);
+        } catch (NoSuchAlgorithmException | ActionException | IllegalArgumentException ex) {
 
-		} catch (Throwable ex) {
+            // show error
+            System.out.printf("!! %s%n%n", ex.getMessage());
 
-			// show error
-			System.out.println(String.format("!! %s%n", ex.getMessage()));
+            // exit with error
+            System.exit(-1);
 
-			try {
+        } catch (Throwable ex) {  // NOPMD
 
-				// store exception
-				FileOutputStream fout = new FileOutputStream(String.format("%s%clastException", getProgramFolder(), File.separatorChar));
-				ex.printStackTrace(new PrintStream(fout));
-				fout.flush();
-				fout.close();
+            // show error
+            System.out.printf("!! %s%n%n", ex.getMessage());
 
-			} catch (IOException exc) {
+            try (OutputStream fout = Files.newOutputStream(Paths.get(String.format("%s%clastException", getProgramFolder(), File.separatorChar)))) {
 
-				/* exception ignored */
-			}
+                // store exception
+                ex.printStackTrace(new PrintStream(fout));
+                fout.flush();
 
-			// exit with error
-			System.exit(-1);
-		}
-	}
+            } catch (IOException exc) {  // NOPMD
 
-	public static String getProgramFolder() {
+                /* exception ignored */
+            }
 
-		String sFolder = String.format("%s%c.secrete", System.getProperty("user.home"), File.separatorChar);
+            // exit with error
+            System.exit(-1);
+        }
+    }
 
-		File folder = new File(sFolder);
+    public static String getProgramFolder() {
 
-		if (!folder.exists())
-			if (!folder.mkdirs())
-				throw new IllegalAccessError("Unable to create folder under user's home.");
+        String sFolder = String.format("%s%c.secrete", System.getProperty("user.home"), File.separatorChar);
 
-		return folder.getAbsolutePath();
-	}
+        File folder = new File(sFolder);
 
-	private void composeActions() {
+        if (!folder.exists() && !folder.mkdirs()) {
 
-		actions.put("genKeys", new GenKeysAction());
-		actions.put("encrypt", new EncryptAction());
-		actions.put("decrypt", new DecryptAction());
-		actions.put("exportKey", new ExportKeyAction());
-	}
+            throw new IllegalAccessError("Unable to create folder under user's home.");
+        }
 
-	private String getActionsString() {
+        return folder.getAbsolutePath();
+    }
 
-		StringBuilder sb = new StringBuilder();
-		for (String a : actions.keySet()) {
+    private void composeActions() {
 
-			sb.append(a);
-			sb.append(", ");
-		}
-		sb.replace(sb.length() - 2, sb.length(), "");
+        actions.put("genKeys", new GenKeysAction());
+        actions.put("encrypt", new EncryptAction());
+        actions.put("decrypt", new DecryptAction());
+        actions.put("exportKey", new ExportKeyAction());
+    }
 
-		return sb.toString();
-	}
+    private String getActionsString() {
 
-	private void composeOptions() {
+        StringBuilder sb = new StringBuilder();
+        for (String a : actions.keySet()) {
 
-		// input option
-		Option input = OptionBuilder.create('i');
-		input.setLongOpt("input");
-		input.setArgs(1);
-		input.setArgName("path");
-		input.setDescription("where path is the file to encrypt/decrypt.");
-		options.addOption(input);
+            sb.append(a);
+            sb.append(", ");
+        }
+        sb.replace(sb.length() - 2, sb.length(), "");
 
-		// output option
-		Option output = OptionBuilder.create('o');
-		output.setLongOpt("output");
-		output.setArgs(1);
-		output.setArgName("path");
-		output.setDescription("where path is the file where to write the encrypted/decrypted/exported data.");
-		options.addOption(output);
+        return sb.toString();
+    }
 
-		// key option
-		Option key = OptionBuilder.create('k');
-		key.setLongOpt("key");
-		key.setArgs(1);
-		key.setArgName("path");
-		key.setDescription("where path is the file containing the public key to use. If not specified the default key will be used.");
-		options.addOption(key);
-	}
+    private void composeOptions() {
 
-	public static void main(String[] args) {
+        // input option
+        Option input = OptionBuilder.create('i');
+        input.setLongOpt("input");
+        input.setArgs(1);
+        input.setArgName("path");
+        input.setDescription("where path is the file to encrypt/decrypt.");
+        options.addOption(input);
 
-		new Main(args);
-	}
+        // output option
+        Option output = OptionBuilder.create('o');
+        output.setLongOpt("output");
+        output.setArgs(1);
+        output.setArgName("path");
+        output.setDescription("where path is the file where to write the encrypted/decrypted/exported data.");
+        options.addOption(output);
+
+        // key option
+        Option key = OptionBuilder.create('k');
+        key.setLongOpt("key");
+        key.setArgs(1);
+        key.setArgName("path");
+        key.setDescription("where path is the file containing the public key to use. If not specified the default key will be used.");
+        options.addOption(key);
+    }
+
+    public static void main(String[] args) {
+
+        new Main(args);
+    }
 }

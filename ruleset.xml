@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<ruleset name="Secrete Java rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>Secrete Java rules</description>
+
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="UseVarargs" />
+        <exclude name="SystemPrintln" />
+    </rule>
+    <rule ref="category/java/bestpractices.xml/ArrayIsStoredDirectly">
+        <properties>
+            <property name="violationSuppressXPath" value="./ancestor::ClassOrInterfaceDeclaration[matches(@Image, 'ECIESMessage|Curve25519.*Parameter')]" />
+        </properties>
+    </rule>
+    <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray">
+        <properties>
+            <property name="violationSuppressXPath" value="./ancestor::ClassOrInterfaceDeclaration[matches(@Image, 'ECIESMessage|Curve25519.*(Parameter|Key)')]" />
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="LongVariable" />
+        <exclude name="ShortVariable" />
+        <exclude name="AvoidUsingNativeCode" />
+        <exclude name="LocalVariableCouldBeFinal" />
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <exclude name="OnlyOneReturn" />
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <exclude name="LawOfDemeter" />
+        <exclude name="LoosePackageCoupling" />
+        <exclude name="DataClass" />
+    </rule>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="BeanMembersShouldSerialize" />
+        <exclude name="DoNotTerminateVM" />
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="DoNotUseThreads" />
+    </rule>
+    <rule ref="category/java/performance.xml" />
+    <rule ref="category/java/security.xml" />
+</ruleset>

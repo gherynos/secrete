@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -27,41 +27,48 @@ import org.bouncycastle.crypto.CipherParameters;
 
 import djb.Curve25519;
 
-public class Curve25519Agreement implements BasicAgreement {
+public class Curve25519Agreement implements BasicAgreement {  // NOPMD
 
-	public void init(CipherParameters param) {
+    @Override
+    public void init(CipherParameters param) {
 
-		/* initialization parameters ignored */
-	}
+        /* initialization parameters ignored */
+    }
 
-	public int getFieldSize() {
+    @Override
+    public int getFieldSize() {
 
-		return Curve25519.KEY_SIZE;
-	}
+        return Curve25519.KEY_SIZE;
+    }
 
-	public BigInteger calculateAgreement(CipherParameters param) {
+    @Override
+    public BigInteger calculateAgreement(CipherParameters param) {
 
-		// check class
-		byte[] S = new byte[Curve25519.KEY_SIZE];
-		if (param instanceof Curve25519EncryptionParameter) {
+        // check class
+        byte[] s = new byte[Curve25519.KEY_SIZE];
+        if (param instanceof Curve25519EncryptionParameter) {
 
-			// compute shared secret for encryption
-			Curve25519EncryptionParameter cpk = (Curve25519EncryptionParameter) param;
-			Curve25519.curve(S, cpk.getScalarR(), cpk.getKey());
+            // compute shared secret for encryption
+            Curve25519EncryptionParameter cpk = (Curve25519EncryptionParameter) param;
+            Curve25519.curve(s, cpk.getScalarR(), cpk.getKey());
 
-		} else if (param instanceof Curve25519DecryptionParameter) {
+        } else if (param instanceof Curve25519DecryptionParameter) {
 
-			// compute shared secret for decryption
-			Curve25519DecryptionParameter cpk = (Curve25519DecryptionParameter) param;
-			Curve25519.curve(S, cpk.getKey(), cpk.getPointR());
+            // compute shared secret for decryption
+            Curve25519DecryptionParameter cpk = (Curve25519DecryptionParameter) param;
+            Curve25519.curve(s, cpk.getKey(), cpk.getPointR());
 
-		} else
-			throw new IllegalArgumentException(String.format("%s or %s instance required", Curve25519EncryptionParameter.class.getSimpleName(), Curve25519DecryptionParameter.class.getSimpleName()));
+        } else {
 
-		// check point at infinity
-		if (Arrays.equals(S, Curve25519.ZERO))
-			throw new IllegalArgumentException("Point at Infinity");
+            throw new IllegalArgumentException(String.format("%s or %s instance required", Curve25519EncryptionParameter.class.getSimpleName(), Curve25519DecryptionParameter.class.getSimpleName()));
+        }
 
-		return new BigInteger(S);
-	}
+        // check point at infinity
+        if (Arrays.equals(s, Curve25519.ZERO)) {
+
+            throw new IllegalArgumentException("Point at Infinity");
+        }
+
+        return new BigInteger(s);
+    }
 }

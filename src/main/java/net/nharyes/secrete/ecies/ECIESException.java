@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -21,15 +21,15 @@ package net.nharyes.secrete.ecies;
 
 public class ECIESException extends Exception {
 
-	private static final long serialVersionUID = -6701383232842411004L;
+    private static final long serialVersionUID = -6701383232842411004L;
 
-	public ECIESException(String message) {
+    public ECIESException(String message) {
 
-		super(message);
-	}
+        super(message);
+    }
 
-	public ECIESException(String message, Throwable ex) {
+    public ECIESException(String message, Throwable ex) {
 
-		super(message, ex);
-	}
+        super(message, ex);
+    }
 }

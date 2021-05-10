@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.PublicKey;
 
-import net.nharyes.secrete.MagicNumbers;
+import net.nharyes.secrete.MagicNumbersConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.Arrays;
@@ -33,58 +33,60 @@ import djb.Curve25519;
 
 public class Curve25519PublicKey implements PublicKey {
 
-	private static final long serialVersionUID = -7034768783782281104L;
+    private static final long serialVersionUID = -7034768783782281104L;
 
-	private final byte[] key;
+    private final byte[] key;
 
-	protected Curve25519PublicKey(byte[] pkey) {
+    protected Curve25519PublicKey(byte[] pkey) {
 
-		key = new byte[Curve25519.KEY_SIZE];
-		System.arraycopy(pkey, 0, key, 0, pkey.length);
-	}
+        key = new byte[Curve25519.KEY_SIZE];
+        System.arraycopy(pkey, 0, key, 0, pkey.length);
+    }
 
-	@Override
-	public String getAlgorithm() {
+    @Override
+    public String getAlgorithm() {
 
-		return "Curve25519";
-	}
+        return "Curve25519";
+    }
 
-	@Override
-	public String getFormat() {
+    @Override
+    public String getFormat() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public byte[] getEncoded() {
+    @Override
+    public byte[] getEncoded() {
 
-		return key;
-	}
+        return key;
+    }
 
-	public static Curve25519PublicKey deserialize(InputStream in) throws IOException {
+    public static Curve25519PublicKey deserialize(InputStream in) throws IOException {
 
-		// check magic number
-		byte[] mn = new byte[MagicNumbers.PUBLIC_KEY.length];
-		IOUtils.readFully(in, mn, 0, mn.length);
-		if (!Arrays.areEqual(mn, MagicNumbers.PUBLIC_KEY))
-			throw new IllegalArgumentException("Wrong key file format");
+        // check magic number
+        byte[] mn = new byte[MagicNumbersConstants.PUBLIC_KEY.length];
+        IOUtils.readFully(in, mn, 0, mn.length);
+        if (!Arrays.areEqual(mn, MagicNumbersConstants.PUBLIC_KEY)) {
 
-		// read key
-		byte[] key = new byte[Curve25519.KEY_SIZE];
-		IOUtils.readFully(in, key, 0, key.length);
+            throw new IllegalArgumentException("Wrong key file format");
+        }
 
-		// return key instance
-		return new Curve25519PublicKey(key);
-	}
+        // read key
+        byte[] key = new byte[Curve25519.KEY_SIZE];
+        IOUtils.readFully(in, key, 0, key.length);
 
-	public void serialize(OutputStream out) throws IOException {
+        // return key instance
+        return new Curve25519PublicKey(key);
+    }
 
-		// write magic number
-		out.write(MagicNumbers.PUBLIC_KEY);
-		out.flush();
+    public void serialize(OutputStream out) throws IOException {
 
-		// write key
-		out.write(key);
-		out.flush();
-	}
+        // write magic number
+        out.write(MagicNumbersConstants.PUBLIC_KEY);
+        out.flush();
+
+        // write key
+        out.write(key);
+        out.flush();
+    }
 }

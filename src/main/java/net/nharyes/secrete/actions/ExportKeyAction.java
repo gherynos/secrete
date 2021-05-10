@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -20,33 +20,35 @@
 package net.nharyes.secrete.actions;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 
 import net.nharyes.secrete.curve.Curve25519PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 
-public class ExportKeyAction extends Action {
+public class ExportKeyAction extends Action {  // NOPMD
 
-	public void execute(CommandLine line, SecureRandom random) throws ActionException {
+    @Override
+    public void execute(CommandLine line, SecureRandom random) throws ActionException {
 
-		try {
+        // load public key
+        try (InputStream fin = Files.newInputStream(Paths.get(DEFAULT_PUBLIC_KEY))) {
 
-			// load public key
-			FileInputStream fin = new FileInputStream(DEFAULT_PUBLIC_KEY);
-			Curve25519PublicKey key = Curve25519PublicKey.deserialize(fin);
+            Curve25519PublicKey key = Curve25519PublicKey.deserialize(fin);
 
-			// write public key
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			key.serialize(bout);
-			writeData(bout.toByteArray(), line.getOptionValue('o'), true);
+            // write public key
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            key.serialize(bout);
+            writeData(bout.toByteArray(), line.getOptionValue('o'), true);
 
-		} catch (IOException ex) {
+        } catch (IOException ex) {
 
-			// re-throw exception
-			throw new ActionException(ex.getMessage(), ex);
-		}
-	}
+            // re-throw exception
+            throw new ActionException(ex.getMessage(), ex);
+        }
+    }
 }

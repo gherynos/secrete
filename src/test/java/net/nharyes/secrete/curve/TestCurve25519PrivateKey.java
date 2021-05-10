@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.Security;
@@ -41,57 +42,57 @@ import org.junit.Test;
 
 public class TestCurve25519PrivateKey {
 
-	@Test
-	public void testPrivateKeySerialization() throws Exception {
+    @Test
+    public void testPrivateKeySerialization() throws Exception {
 
-		KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
+        KeyPair keyPair = Curve25519KeyPairGenerator.generateKeyPair();
 
-		Curve25519PrivateKey pkey = (Curve25519PrivateKey) keyPair.getPrivate();
+        Curve25519PrivateKey pkey = (Curve25519PrivateKey) keyPair.getPrivate();
 
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
-		char[] password = "aSimplePasswordToTest".toCharArray();
+        char[] password = "aSimplePasswordToTest".toCharArray();
 
-		pkey.serialize(bout, password);
+        pkey.serialize(bout, password);
 
-		byte[] serialized = bout.toByteArray();
+        byte[] serialized = bout.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
+        ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
 
-		Curve25519PrivateKey pkeyCopy = Curve25519PrivateKey.deserialize(bin, password);
+        Curve25519PrivateKey pkeyCopy = Curve25519PrivateKey.deserialize(bin, password);
 
-		assertEquals(pkey.getAlgorithm(), pkeyCopy.getAlgorithm());
-		assertEquals(pkey.getFormat(), pkeyCopy.getFormat());
-		assertArrayEquals(pkey.getEncoded(), pkeyCopy.getEncoded());
-	}
-	
-	@Test
-	public void testPBKDF() throws Exception {
-		
-		Security.addProvider(new BouncyCastleProvider());
-		
-		Random r = new Random();
-		
-		char[] cPassword = "ThePa55wordToU5e".toCharArray();
-		byte[] salt = new byte[64];
-		r.nextBytes(salt);
-		
-		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		KeySpec keyspec = new PBEKeySpec(cPassword, salt, 5000, 256);
-		Key key = factory.generateSecret(keyspec);
-		byte[] k1 = key.getEncoded();
-		
-		factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1", "BC");
-		key = factory.generateSecret(keyspec);
-		byte[] k2 = key.getEncoded();
-		
-		assertArrayEquals(k1, k2);
-		
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA1Digest());
-		gen.init(new String(cPassword).getBytes("UTF-8"), salt, 5000);
-		byte[] k3 = ((KeyParameter) gen.generateDerivedParameters(256)).getKey();
-		
-		assertArrayEquals(k1, k3);
-		assertArrayEquals(k2, k3);
-	}
+        assertEquals(pkey.getAlgorithm(), pkeyCopy.getAlgorithm());
+        assertEquals(pkey.getFormat(), pkeyCopy.getFormat());
+        assertArrayEquals(pkey.getEncoded(), pkeyCopy.getEncoded());
+    }
+
+    @Test
+    public void testPBKDF() throws Exception {
+
+        Security.addProvider(new BouncyCastleProvider());
+
+        Random r = new Random();
+
+        char[] cPassword = "ThePa55wordToU5e".toCharArray();
+        byte[] salt = new byte[64];
+        r.nextBytes(salt);
+
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec keyspec = new PBEKeySpec(cPassword, salt, 5000, 256);
+        Key key = factory.generateSecret(keyspec);
+        byte[] k1 = key.getEncoded();
+
+        factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1", "BC");
+        key = factory.generateSecret(keyspec);
+        byte[] k2 = key.getEncoded();
+
+        assertArrayEquals(k1, k2);
+
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA1Digest());
+        gen.init(new String(cPassword).getBytes(StandardCharsets.UTF_8), salt, 5000);
+        byte[] k3 = ((KeyParameter) gen.generateDerivedParameters(256)).getKey();
+
+        assertArrayEquals(k1, k3);
+        assertArrayEquals(k2, k3);
+    }
 }

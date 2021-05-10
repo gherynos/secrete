@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -20,49 +20,61 @@
 package net.nharyes.secrete.actions;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 
 import net.nharyes.secrete.curve.Curve25519PublicKey;
-import net.nharyes.secrete.ecies.ECIES;
+import net.nharyes.secrete.ecies.ECIESHelper;
 import net.nharyes.secrete.ecies.ECIESException;
 import net.nharyes.secrete.ecies.ECIESMessage;
 
 import org.apache.commons.cli.CommandLine;
 
-public class EncryptAction extends Action {
+public class EncryptAction extends Action {  // NOPMD
 
-	public void execute(CommandLine line, SecureRandom random) throws ActionException {
+    @Override
+    public void execute(CommandLine line, SecureRandom random) throws ActionException {
 
-		try {
+        try {
 
-			// read data
-			Object data = readData(line.getOptionValue('i'), "message");
+            // read data
+            Object data = readData(line.getOptionValue('i'), "message");
 
-			// load public key
-			String keyToLoad = DEFAULT_PUBLIC_KEY;
-			if (line.hasOption('k'))
-				keyToLoad = line.getOptionValue('k');
-			FileInputStream fin = new FileInputStream(keyToLoad);
-			Curve25519PublicKey key = Curve25519PublicKey.deserialize(fin);
+            // load public key
+            String keyToLoad = DEFAULT_PUBLIC_KEY;
+            if (line.hasOption('k')) {
 
-			// encrypt message
-			ECIESMessage message;
-			if (line.hasOption('i'))
-				message = ECIES.encryptData(key, (byte[]) data, random);
-			else
-				message = ECIES.encryptData(key, (String) data, random);
+                keyToLoad = line.getOptionValue('k');
+            }
 
-			// write message
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			message.serialize(bout);
-			writeData(bout.toByteArray(), line.getOptionValue('o'), true);
+            try (InputStream fin = Files.newInputStream(Paths.get(keyToLoad))) {
 
-		} catch (IOException | ECIESException ex) {
+                Curve25519PublicKey key = Curve25519PublicKey.deserialize(fin);
 
-			// re-throw exception
-			throw new ActionException(ex.getMessage(), ex);
-		}
-	}
+                // encrypt message
+                ECIESMessage message;
+                if (line.hasOption('i')) {
+
+                    message = ECIESHelper.encryptData(key, (byte[]) data, random);
+
+                } else {
+
+                    message = ECIESHelper.encryptData(key, (String) data, random);
+                }
+
+                // write message
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                message.serialize(bout);
+                writeData(bout.toByteArray(), line.getOptionValue('o'), true);
+            }
+
+        } catch (IOException | ECIESException ex) {
+
+            // re-throw exception
+            throw new ActionException(ex.getMessage(), ex);
+        }
+    }
 }

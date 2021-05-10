@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -24,11 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 
-import net.nharyes.secrete.MagicNumbers;
+import net.nharyes.secrete.MagicNumbersConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.crypto.BufferedBlockCipher;
@@ -49,124 +50,126 @@ import djb.Curve25519;
 
 public class Curve25519PrivateKey implements PrivateKey {
 
-	private static final long serialVersionUID = 4386625506282179779L;
+    private static final long serialVersionUID = 4386625506282179779L;
 
-	private static final int PBKDF2_ITERATIONS = 5000;
+    private static final int PBKDF2_ITERATIONS = 5000;
 
-	public static final int AES_KEY_SIZE_BITS = 256;
+    public static final int AES_KEY_SIZE_BITS = 256;
 
-	private final byte[] key;
+    private final byte[] key;
 
-	protected Curve25519PrivateKey(byte[] pkey) {
+    protected Curve25519PrivateKey(byte[] pkey) {
 
-		key = new byte[Curve25519.KEY_SIZE];
-		System.arraycopy(pkey, 0, key, 0, key.length);
-	}
+        key = new byte[Curve25519.KEY_SIZE];
+        System.arraycopy(pkey, 0, key, 0, key.length);
+    }
 
-	@Override
-	public String getAlgorithm() {
+    @Override
+    public String getAlgorithm() {
 
-		return "Curve25519";
-	}
+        return "Curve25519";
+    }
 
-	@Override
-	public String getFormat() {
+    @Override
+    public String getFormat() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public byte[] getEncoded() {
+    @Override
+    public byte[] getEncoded() {
 
-		return key;
-	}
+        return key;
+    }
 
-	public static Curve25519PrivateKey deserialize(InputStream in, char[] password) throws IOException {
+    public static Curve25519PrivateKey deserialize(InputStream in, char[] password) throws IOException {
 
-		try {
+        try {
 
-			// check magic number
-			byte[] mn = new byte[MagicNumbers.PRIVATE_KEY.length];
-			IOUtils.readFully(in, mn, 0, mn.length);
-			if (!Arrays.areEqual(mn, MagicNumbers.PRIVATE_KEY))
-				throw new IllegalArgumentException("Wrong key file format");
+            // check magic number
+            byte[] mn = new byte[MagicNumbersConstants.PRIVATE_KEY.length];
+            IOUtils.readFully(in, mn, 0, mn.length);
+            if (!Arrays.areEqual(mn, MagicNumbersConstants.PRIVATE_KEY)) {
 
-			// read initial vector
-			byte[] iv = new byte[16];
-			IOUtils.readFully(in, iv, 0, iv.length);
+                throw new IllegalArgumentException("Wrong key file format");
+            }
 
-			// read salt
-			byte[] salt = new byte[64];
-			IOUtils.readFully(in, salt, 0, salt.length);
+            // read initial vector
+            byte[] iv = new byte[16];
+            IOUtils.readFully(in, iv, 0, iv.length);
 
-			// initialize cipher
-			CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
-			BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
-			cipher.reset();
-			cipher.init(false, params);
+            // read salt
+            byte[] salt = new byte[64];
+            IOUtils.readFully(in, salt, 0, salt.length);
 
-			// decrypt key
-			CipherInputStream cin = new CipherInputStream(in, cipher);
-			byte[] key = new byte[Curve25519.KEY_SIZE];
-			IOUtils.readFully(cin, key, 0, key.length);
+            // initialize cipher
+            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
+            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
+            cipher.reset();
+            cipher.init(false, params);
 
-			// return key instance
-			return new Curve25519PrivateKey(key);
+            // decrypt key
+            CipherInputStream cin = new CipherInputStream(in, cipher);
+            byte[] key = new byte[Curve25519.KEY_SIZE];
+            IOUtils.readFully(cin, key, 0, key.length);
 
-		} catch (UnsupportedEncodingException ex) {
+            // return key instance
+            return new Curve25519PrivateKey(key);
 
-			throw new UnsupportedOperationException(ex.getMessage(), ex);
-		}
-	}
+        } catch (UnsupportedEncodingException ex) {
 
-	public void serialize(OutputStream out, char[] password) throws IOException {
+            throw new UnsupportedOperationException(ex.getMessage(), ex);
+        }
+    }
 
-		try {
+    public void serialize(OutputStream out, char[] password) throws IOException {
 
-			// generate initial vector
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			byte[] iv = new byte[16];
-			random.nextBytes(iv);
+        try {
 
-			// generate salt
-			byte[] salt = new byte[64];
-			random.nextBytes(salt);
+            // generate initial vector
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            byte[] iv = new byte[16];
+            random.nextBytes(iv);
 
-			// initialize cipher
-			CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
-			BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
-			cipher.reset();
-			cipher.init(true, params);
+            // generate salt
+            byte[] salt = new byte[64];
+            random.nextBytes(salt);
 
-			// write magic number
-			out.write(MagicNumbers.PRIVATE_KEY);
-			out.flush();
+            // initialize cipher
+            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
+            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
+            cipher.reset();
+            cipher.init(true, params);
 
-			// write initial vector and salt
-			out.write(iv);
-			out.write(salt);
-			out.flush();
+            // write magic number
+            out.write(MagicNumbersConstants.PRIVATE_KEY);
+            out.flush();
 
-			// write encrypted key to output stream
-			ByteArrayOutputStream buf = new ByteArrayOutputStream();
-			CipherOutputStream cout = new CipherOutputStream(buf, cipher);
-			cout.write(key);
-			cout.close();
-			out.write(buf.toByteArray());
-			out.flush();
+            // write initial vector and salt
+            out.write(iv);
+            out.write(salt);
+            out.flush();
 
-		} catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+            // write encrypted key to output stream
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            CipherOutputStream cout = new CipherOutputStream(buf, cipher);
+            cout.write(key);
+            cout.close();
+            out.write(buf.toByteArray());
+            out.flush();
 
-			throw new UnsupportedOperationException(ex.getMessage(), ex);
-		}
-	}
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
 
-	private static byte[] deriveKey(char[] password, byte[] salt) throws UnsupportedEncodingException {
+            throw new UnsupportedOperationException(ex.getMessage(), ex);
+        }
+    }
 
-		// generate key using PBKDF2
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
-		gen.init(new String(password).getBytes("UTF-8"), salt, PBKDF2_ITERATIONS);
+    private static byte[] deriveKey(char[] password, byte[] salt) throws UnsupportedEncodingException {
 
-		return ((KeyParameter) gen.generateDerivedParameters(AES_KEY_SIZE_BITS)).getKey();
-	}
+        // generate key using PBKDF2
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
+        gen.init(new String(password).getBytes(StandardCharsets.UTF_8), salt, PBKDF2_ITERATIONS);
+
+        return ((KeyParameter) gen.generateDerivedParameters(AES_KEY_SIZE_BITS)).getKey();
+    }
 }

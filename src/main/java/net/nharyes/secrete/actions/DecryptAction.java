@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -19,56 +19,61 @@
 
 package net.nharyes.secrete.actions;
 
-import java.io.ByteArrayInputStream;
-import java.io.Console;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 
 import net.nharyes.secrete.curve.Curve25519PrivateKey;
-import net.nharyes.secrete.ecies.ECIES;
+import net.nharyes.secrete.ecies.ECIESHelper;
 import net.nharyes.secrete.ecies.ECIESException;
 import net.nharyes.secrete.ecies.ECIESMessage;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.codec.binary.Base64;
 
-public class DecryptAction extends Action {
+public class DecryptAction extends Action {  // NOPMD
 
-	public void execute(CommandLine line, SecureRandom random) throws ActionException {
+    @Override
+    public void execute(CommandLine line, SecureRandom random) throws ActionException {
 
-		try {
+        try {
 
-			// read data
-			Object data = readData(line.getOptionValue('i'), "encrypted message");
+            // read data
+            Object data = readData(line.getOptionValue('i'), "encrypted message");
 
-			// get message
-			ByteArrayInputStream in;
-			if (!line.hasOption('i'))
-				in = new ByteArrayInputStream(Base64.decodeBase64((String) data));
-			else
-				in = new ByteArrayInputStream((byte[]) data);
-			ECIESMessage message = ECIESMessage.deserialize(in);
+            // get message
+            ByteArrayInputStream in;
+            if (line.hasOption('i')) {
 
-			// ask password
-			Console c = System.console();
-			char[] password = c.readPassword("Enter password: ");
+                in = new ByteArrayInputStream((byte[]) data);
 
-			// load private key
-			FileInputStream fin = new FileInputStream(DEFAULT_PRIVATE_KEY);
-			Curve25519PrivateKey key = Curve25519PrivateKey.deserialize(fin, password);
-			fin.close();
+            } else {
 
-			// decrypt message
-			byte[] plaintext = ECIES.decryptMessage(key, message);
+                in = new ByteArrayInputStream(Base64.decodeBase64((String) data));
+            }
+            ECIESMessage message = ECIESMessage.deserialize(in);
 
-			// write message
-			writeData(plaintext, line.getOptionValue('o'), message.isBinary());
+            // ask password
+            Console c = System.console();
+            char[] password = c.readPassword("Enter password: ");
 
-		} catch (IOException | ECIESException ex) {
+            // load private key
+            try (InputStream fin = Files.newInputStream(Paths.get(DEFAULT_PRIVATE_KEY))) {
 
-			// re-throw exception
-			throw new ActionException(ex.getMessage(), ex);
-		}
-	}
+                Curve25519PrivateKey key = Curve25519PrivateKey.deserialize(fin, password);
+
+                // decrypt message
+                byte[] plaintext = ECIESHelper.decryptMessage(key, message);
+
+                // write message
+                writeData(plaintext, line.getOptionValue('o'), message.isBinary());
+            }
+
+        } catch (IOException | ECIESException ex) {
+
+            // re-throw exception
+            throw new ActionException(ex.getMessage(), ex);
+        }
+    }
 }

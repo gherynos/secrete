@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -19,15 +19,13 @@
 
 package net.nharyes.secrete.actions;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 
 import net.nharyes.secrete.Main;
-import net.nharyes.secrete.ecies.ECIES;
+import net.nharyes.secrete.ecies.ECIESHelper;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.codec.binary.Base64;
@@ -35,79 +33,91 @@ import org.apache.commons.io.IOUtils;
 
 public abstract class Action {
 
-	static final String DEFAULT_PUBLIC_KEY = String.format("%s%cpublic.key", Main.getProgramFolder(), File.separatorChar);
-	
-	static final String DEFAULT_PRIVATE_KEY = String.format("%s%cprivate.key", Main.getProgramFolder(), File.separatorChar);
-	
-	public abstract void execute(CommandLine line, SecureRandom random) throws ActionException;
+    protected static final String DEFAULT_PUBLIC_KEY = String.format("%s%cpublic.key", Main.getProgramFolder(), File.separatorChar);
 
-	Console getConsole() throws ActionException {
+    protected static final String DEFAULT_PRIVATE_KEY = String.format("%s%cprivate.key", Main.getProgramFolder(), File.separatorChar);
 
-		// check console
-		Console c = System.console();
-		if (c == null) {
+    protected static final String END_INPUT = ".";
 
-			// console not available
-			throw new ActionException("Console not available");
-		}
+    public abstract void execute(CommandLine line, SecureRandom random) throws ActionException;
 
-		return c;
-	}
+    protected Action() {
 
-	Object readData(String file, String type) throws IOException, ActionException {
+    }
 
-		if (file == null) {
+    protected Console getConsole() throws ActionException {
 
-			// get console
-			Console c = getConsole();
+        // check console
+        Console c = System.console();
+        if (c == null) {
 
-			// read message
-			System.out.println(String.format("Insert %s and end with '.'", type));
-			String read;
-			StringBuilder sb = new StringBuilder();
-			do {
+            // console not available
+            throw new ActionException("Console not available");
+        }
 
-				read = c.readLine();
-				if (!read.equalsIgnoreCase(".")) {
+        return c;
+    }
 
-					sb.append(read);
-					sb.append("\n");
-				}
+    protected Object readData(String file, String type) throws IOException, ActionException {
 
-			} while (!read.equalsIgnoreCase("."));
+        if (file == null) {
 
-			return sb.toString();
+            // get console
+            Console c = getConsole();
 
-		} else {
+            // read message
+            System.out.printf("Insert %s and end with '.'%n", type);
+            String read;
+            StringBuilder sb = new StringBuilder();
+            do {
 
-			// load file
-			FileInputStream fin = new FileInputStream(file);
-			byte[] bData = new byte[fin.available()];
-			IOUtils.readFully(fin, bData);
-			fin.close();
+                read = c.readLine();
+                if (!END_INPUT.equalsIgnoreCase(read)) {
 
-			return bData;
-		}
-	}
+                    sb.append(read);
+                    sb.append('\n');
+                }
 
-	void writeData(byte[] data, String file, boolean binary) throws IOException {
+            } while (!END_INPUT.equalsIgnoreCase(read));
 
-		if (file != null) {
+            return sb.toString();
 
-			// write data
-			FileOutputStream fout = new FileOutputStream(file);
-			fout.write(data);
-			fout.close();
+        } else {
 
-		} else {
+            // load file
+            try (InputStream fin = Files.newInputStream(Paths.get(file))) {
 
-			// output data
-			String sData;
-			if (binary)
-				sData = new String(Base64.encodeBase64(data, true, false), ECIES.ENCODING);
-			else
-				sData = new String(data, ECIES.ENCODING);
-			System.out.println(String.format("%n---%n%s", sData));
-		}
-	}
+                byte[] bData = new byte[fin.available()];
+                IOUtils.readFully(fin, bData);
+
+                return bData;
+            }
+        }
+    }
+
+    protected void writeData(byte[] data, String file, boolean binary) throws IOException {
+
+        if (file == null) {
+
+            // output data
+            String sData;
+            if (binary) {
+
+                sData = new String(Base64.encodeBase64(data, true, false), ECIESHelper.ENCODING);
+
+            } else {
+
+                sData = new String(data, ECIESHelper.ENCODING);
+            }
+            System.out.printf("%n---%n%s%n", sData);
+
+        } else {
+
+            // write data
+            try (OutputStream fout = Files.newOutputStream(Paths.get(file))) {
+
+                fout.write(data);
+            }
+        }
+    }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015  Luca Zanconato (<luca.zanconato@nharyes.net>)
+/*
+ * Copyright (C) 2015-2021  Luca Zanconato (<github.com/gherynos>)
  *
  * This file is part of Secrete.
  *
@@ -25,26 +25,30 @@ import java.security.SecureRandom;
 
 import djb.Curve25519;
 
-public class Curve25519KeyPairGenerator {
+public final class Curve25519KeyPairGenerator {  //NOPMD
 
-	public static KeyPair generateKeyPair(SecureRandom random) {
+    private Curve25519KeyPairGenerator() {
 
-		// generate private key
-		byte[] pri = new byte[Curve25519.KEY_SIZE];
-		random.nextBytes(pri);
+    }
 
-		// generate public key
-		byte[] pub = new byte[Curve25519.KEY_SIZE];
-		Curve25519.keygen(pub, null, pri);
+    public static KeyPair generateKeyPair(SecureRandom random) {
 
-		// return key pair
-		return new KeyPair(new Curve25519PublicKey(pub), new Curve25519PrivateKey(pri));
-	}
+        // generate private key
+        byte[] pri = new byte[Curve25519.KEY_SIZE];
+        random.nextBytes(pri);
 
-	public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        // generate public key
+        byte[] pub = new byte[Curve25519.KEY_SIZE];
+        Curve25519.keygen(pub, null, pri);
 
-		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        // return key pair
+        return new KeyPair(new Curve25519PublicKey(pub), new Curve25519PrivateKey(pri));
+    }
 
-		return generateKeyPair(random);
-	}
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+
+        return generateKeyPair(random);
+    }
 }
