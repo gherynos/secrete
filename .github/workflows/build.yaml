@@ -19,3 +19,16 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+
+      - name: Tag name
+        if: startsWith(github.ref, 'refs/tags/')
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: target/secrete-${{ steps.vars.outputs.tag }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
