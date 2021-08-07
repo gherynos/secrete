@@ -42,4 +42,4 @@ jobs:
         run: mvn -B -DskipTests deploy --file pom.xml -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
