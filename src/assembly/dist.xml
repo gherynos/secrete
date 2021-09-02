@@ -11,7 +11,7 @@
             <outputDirectory />
             <includes>
                 <include>README.md</include>
-                <include>LICENSE</include>
+                <include>LICENSE.txt</include>
             </includes>
         </fileSet>
         <fileSet>

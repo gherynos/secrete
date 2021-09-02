@@ -31,6 +31,13 @@ repos:
           - css
           - svg
         exclude: binary|\.bin$
+      - id: insert-license
+        files: \.java$
+        args:
+          - --license-filepath
+          - license_header.txt
+          - --comment-style
+          - /*| *| */
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.22.0
     hooks:
