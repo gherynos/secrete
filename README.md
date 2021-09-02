@@ -83,10 +83,28 @@ java -jar secrete.jar -i <encrypted_file> -o <decrypted_file> decrypt
 
 Insert the password to unlock the private key.
 
+## Library usage
+
+Secrete can be used as a library, via the [Maven Central Repository](https://mvnrepository.com/artifact/net.nharyes/secrete):
+
+```xml
+<dependency>
+    <groupId>net.nharyes</groupId>
+    <artifactId>secrete</artifactId>
+</dependency>
+```
+
+The main classes to use are:
+
+* `net.nharyes.secrete.curve.Curve25519KeyPairGenerator`
+* `net.nharyes.secrete.ecies.ECIESHelper`
+
+Check the [ECIESHelper unit tests](https://github.com/gherynos/secrete/blob/main/src/test/java/net/nharyes/secrete/ecies/TestECIESHelper.java#L34) for some usage examples.
+
 ## Author
 
 > GitHub [@gherynos](https://github.com/gherynos)
 
 ## License
 
-Secrete is licensed under the [GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.html).
+Secrete is licensed under the [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0) since version `1.0.2`.
