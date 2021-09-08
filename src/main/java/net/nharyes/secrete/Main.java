@@ -46,7 +46,7 @@ public final class Main {  // NOPMD
     /*
      * Version
      */
-    public static final String VERSION = "1.0.2";
+    public static final String VERSION = "1.0.3";
 
     /*
      * Constants
