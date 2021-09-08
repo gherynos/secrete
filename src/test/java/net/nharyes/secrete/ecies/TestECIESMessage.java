@@ -38,7 +38,7 @@ public class TestECIESMessage {
 
     private void testSer(boolean binary) throws Exception {
 
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        SecureRandom random = SecureRandom.getInstance(ECIESHelper.PRNG_ALGORITHM);
 
         byte[] sh1 = new byte[ECIESHelper.SHARED_INFORMATION_SIZE_BYTES];
         random.nextBytes(sh1);

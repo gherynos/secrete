@@ -21,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import djb.Curve25519;
+import net.nharyes.secrete.ecies.ECIESHelper;
 
 public final class Curve25519KeyPairGenerator {  //NOPMD
 
@@ -44,7 +45,7 @@ public final class Curve25519KeyPairGenerator {  //NOPMD
 
     public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
 
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        SecureRandom random = SecureRandom.getInstance(ECIESHelper.PRNG_ALGORITHM);
 
         return generateKeyPair(random);
     }

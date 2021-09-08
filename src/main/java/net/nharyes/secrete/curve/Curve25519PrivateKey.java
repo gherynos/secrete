@@ -28,6 +28,7 @@ import java.security.SecureRandom;
 
 import net.nharyes.secrete.MagicNumbersConstants;
 
+import net.nharyes.secrete.ecies.ECIESHelper;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
@@ -124,7 +125,7 @@ public class Curve25519PrivateKey implements PrivateKey {
         try {
 
             // generate initial vector
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            SecureRandom random = SecureRandom.getInstance(ECIESHelper.PRNG_ALGORITHM);
             byte[] iv = new byte[16];
             random.nextBytes(iv);
 

@@ -16,7 +16,10 @@
 
 package net.nharyes.secrete.actions;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.Console;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
@@ -27,7 +30,6 @@ import net.nharyes.secrete.ecies.ECIESException;
 import net.nharyes.secrete.ecies.ECIESMessage;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.codec.binary.Base64;
 
 public class DecryptAction extends Action {  // NOPMD
 
@@ -37,19 +39,14 @@ public class DecryptAction extends Action {  // NOPMD
         try {
 
             // read data
-            Object data = readData(line.getOptionValue('i'), "encrypted message");
+            byte[] data = (byte[]) readData(line.getOptionValue('i'), "encrypted message", true);
 
             // get message
-            ByteArrayInputStream in;
-            if (line.hasOption('i')) {
+            ECIESMessage message;
+            try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
 
-                in = new ByteArrayInputStream((byte[]) data);
-
-            } else {
-
-                in = new ByteArrayInputStream(Base64.decodeBase64((String) data));
+                message = ECIESMessage.deserialize(in);
             }
-            ECIESMessage message = ECIESMessage.deserialize(in);
 
             // ask password
             Console c = System.console();

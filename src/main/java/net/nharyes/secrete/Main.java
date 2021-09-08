@@ -31,6 +31,7 @@ import net.nharyes.secrete.actions.EncryptAction;
 import net.nharyes.secrete.actions.ExportKeyAction;
 import net.nharyes.secrete.actions.GenKeysAction;
 
+import net.nharyes.secrete.ecies.ECIESHelper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -45,7 +46,7 @@ public final class Main {  // NOPMD
     /*
      * Version
      */
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.0.2";
 
     /*
      * Constants
@@ -82,11 +83,11 @@ public final class Main {  // NOPMD
             }
             if (!actions.containsKey(line.getArgs()[0])) {
 
-                throw new ParseException(String.format("ACTION must be %s.", getActionsString()));
+                throw new ParseException(String.format("ACTION must be one of: %s.", getActionsString()));
             }
 
             // instantiate secure random
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            SecureRandom random = SecureRandom.getInstance(ECIESHelper.PRNG_ALGORITHM);
 
             // execute action
             actions.get(line.getArgs()[0]).execute(line, random);
@@ -101,7 +102,7 @@ public final class Main {  // NOPMD
             System.out.println();
 
             // show error
-            System.out.printf("!! %s%n%n", ex.getMessage());
+            System.err.printf("!! %s%n%n", ex.getMessage());
 
             // exit with error
             System.exit(-1);
@@ -109,7 +110,7 @@ public final class Main {  // NOPMD
         } catch (NoSuchAlgorithmException | ActionException | IllegalArgumentException ex) {
 
             // show error
-            System.out.printf("!! %s%n%n", ex.getMessage());
+            System.err.printf("!! %s%n%n", ex.getMessage());
 
             // exit with error
             System.exit(-1);
@@ -117,7 +118,7 @@ public final class Main {  // NOPMD
         } catch (Throwable ex) {  // NOPMD
 
             // show error
-            System.out.printf("!! %s%n%n", ex.getMessage());
+            System.err.printf("!! %s%n%n", ex.getMessage());
 
             try (OutputStream fout = Files.newOutputStream(Paths.get(String.format("%s%clastException", getProgramFolder(), File.separatorChar)))) {
 
@@ -165,7 +166,7 @@ public final class Main {  // NOPMD
             sb.append(a);
             sb.append(", ");
         }
-        sb.replace(sb.length() - 2, sb.length(), "");
+        sb.setLength(sb.length() - 2);
 
         return sb.toString();
     }

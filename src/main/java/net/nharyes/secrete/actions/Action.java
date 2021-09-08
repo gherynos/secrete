@@ -26,6 +26,7 @@ import net.nharyes.secrete.ecies.ECIESHelper;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.commons.io.IOUtils;
 
 public abstract class Action {
@@ -55,7 +56,7 @@ public abstract class Action {
         return c;
     }
 
-    protected Object readData(String file, String type) throws IOException, ActionException {
+    protected Object readData(String file, String type, boolean binary) throws IOException, ActionException {
 
         if (file == null) {
 
@@ -63,7 +64,7 @@ public abstract class Action {
             Console c = getConsole();
 
             // read message
-            System.out.printf("Insert %s and end with '.'%n", type);
+            System.out.printf("Insert %s and end with '%s'%n", type, END_INPUT);
             String read;
             StringBuilder sb = new StringBuilder();
             do {
@@ -76,6 +77,11 @@ public abstract class Action {
                 }
 
             } while (!END_INPUT.equalsIgnoreCase(read));
+
+            if (binary) {
+
+                return Base64.decodeBase64(sb.toString());
+            }
 
             return sb.toString();
 
@@ -97,16 +103,18 @@ public abstract class Action {
         if (file == null) {
 
             // output data
-            String sData;
+            System.out.println("\n---");
             if (binary) {
 
-                sData = new String(Base64.encodeBase64(data, true, false), ECIESHelper.ENCODING);
+                Base64OutputStream bout = new Base64OutputStream(System.out);
+                bout.write(data);
+                bout.eof();
+                bout.flush();
 
             } else {
 
-                sData = new String(data, ECIESHelper.ENCODING);
+                System.out.print(new String(data, ECIESHelper.ENCODING));
             }
-            System.out.printf("%n---%n%s%n", sData);
 
         } else {
 

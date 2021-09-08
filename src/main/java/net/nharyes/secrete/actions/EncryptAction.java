@@ -38,7 +38,7 @@ public class EncryptAction extends Action {  // NOPMD
         try {
 
             // read data
-            Object data = readData(line.getOptionValue('i'), "message");
+            Object data = readData(line.getOptionValue('i'), "message", line.hasOption('i'));
 
             // load public key
             String keyToLoad = DEFAULT_PUBLIC_KEY;

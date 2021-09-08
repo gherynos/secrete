@@ -54,6 +54,8 @@ public final class ECIESHelper {
 
     public static final String ENCODING = "UTF-8";
 
+    public static final String PRNG_ALGORITHM = "SHA1PRNG";
+
     private ECIESHelper() {
 
     }
@@ -67,13 +69,13 @@ public final class ECIESHelper {
 
         try {
 
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            SecureRandom random = SecureRandom.getInstance(PRNG_ALGORITHM);
 
             return encryptData(key, data, random);
 
         } catch (NoSuchAlgorithmException ex) {
 
-            throw new ECIESException("SHA1PRNG algorithm not found", ex);
+            throw new ECIESException(String.format("%s algorithm not found", PRNG_ALGORITHM), ex);
         }
     }
 
@@ -93,13 +95,13 @@ public final class ECIESHelper {
 
         try {
 
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            SecureRandom random = SecureRandom.getInstance(PRNG_ALGORITHM);
 
             return encryptData(key, data, random);
 
         } catch (NoSuchAlgorithmException ex) {
 
-            throw new ECIESException("SHA1PRNG algorithm not found", ex);
+            throw new ECIESException(String.format("%s algorithm not found", PRNG_ALGORITHM), ex);
         }
     }
 
