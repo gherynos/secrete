@@ -4,7 +4,7 @@
 
 	<groupId>net.nharyes</groupId>
 	<artifactId>secrete</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<packaging>jar</packaging>
 
 	<name>Secrete</name>
