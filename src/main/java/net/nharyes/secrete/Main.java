@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package net.nharyes.secrete;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +37,11 @@ import net.nharyes.secrete.actions.GenKeysAction;
 import net.nharyes.secrete.ecies.ECIESHelper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 public final class Main {  // NOPMD
 
@@ -69,7 +71,7 @@ public final class Main {  // NOPMD
         composeOptions();
 
         // create the command line parser
-        CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
 
         try {
 
@@ -174,7 +176,7 @@ public final class Main {  // NOPMD
     private void composeOptions() {
 
         // input option
-        Option input = OptionBuilder.create('i');
+        Option input = Option.builder("i").build();
         input.setLongOpt("input");
         input.setArgs(1);
         input.setArgName("path");
@@ -182,7 +184,7 @@ public final class Main {  // NOPMD
         options.addOption(input);
 
         // output option
-        Option output = OptionBuilder.create('o');
+        Option output = Option.builder("o").build();
         output.setLongOpt("output");
         output.setArgs(1);
         output.setArgName("path");
@@ -190,7 +192,7 @@ public final class Main {  // NOPMD
         options.addOption(output);
 
         // key option
-        Option key = OptionBuilder.create('k');
+        Option key = Option.builder("k").build();
         key.setLongOpt("key");
         key.setArgs(1);
         key.setArgName("path");

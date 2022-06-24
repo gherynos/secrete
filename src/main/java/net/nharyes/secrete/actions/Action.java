@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,10 +106,12 @@ public abstract class Action {
             System.out.println("\n---");
             if (binary) {
 
-                Base64OutputStream bout = new Base64OutputStream(System.out);
-                bout.write(data);
-                bout.eof();
-                bout.flush();
+                try (Base64OutputStream bout = new Base64OutputStream(System.out)) {
+
+                    bout.write(data);
+                    bout.eof();
+                    bout.flush();
+                }
 
             } else {
 

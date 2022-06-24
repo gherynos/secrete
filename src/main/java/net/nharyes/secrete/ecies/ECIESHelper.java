@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ public final class ECIESHelper {
         try {
 
             // check key algorithm
-            if (!key.getAlgorithm().equals(ASYMMETRIC_ALGORITHM)) {
+            if (!ASYMMETRIC_ALGORITHM.equals(key.getAlgorithm())) {
 
                 throw new ECIESException("Wrong key algorithm");
             }
@@ -159,7 +159,7 @@ public final class ECIESHelper {
         try {
 
             // check key algorithm
-            if (!key.getAlgorithm().equals(ASYMMETRIC_ALGORITHM)) {
+            if (!ASYMMETRIC_ALGORITHM.equals(key.getAlgorithm())) {
 
                 throw new ECIESException("Wrong key algorithm");
             }
