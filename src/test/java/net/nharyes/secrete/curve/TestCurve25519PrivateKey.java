@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2023 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.Random;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import net.nharyes.secrete.MagicNumbersConstants;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -53,6 +54,10 @@ public class TestCurve25519PrivateKey {
         pkey.serialize(bout, password);
 
         byte[] serialized = bout.toByteArray();
+
+        byte[] mn = new byte[MagicNumbersConstants.PRIVATE_KEY_V2.length];
+        System.arraycopy(serialized, 0, mn, 0, mn.length);
+        assertArrayEquals(MagicNumbersConstants.PRIVATE_KEY_V2, mn);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
 

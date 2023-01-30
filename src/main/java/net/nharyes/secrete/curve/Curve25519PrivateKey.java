@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2023 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.nharyes.secrete.MagicNumbersConstants;
 
@@ -42,17 +45,26 @@ import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.util.Arrays;
 
 import djb.Curve25519;
 
 public class Curve25519PrivateKey implements PrivateKey {
 
-    private static final long serialVersionUID = 4386625506282179779L;
+    private static final long serialVersionUID = 4386625506282179780L;
 
-    private static final int PBKDF2_ITERATIONS = 5000;
+    private static final Map<ByteBuffer, Integer> PBKDF2_ITERATIONS;
 
     public static final int AES_KEY_SIZE_BITS = 256;
+
+    static {
+
+        PBKDF2_ITERATIONS = new HashMap<>();
+        PBKDF2_ITERATIONS.put(ByteBuffer.wrap(MagicNumbersConstants.PRIVATE_KEY), 5000);
+
+        // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+        // [PBKDF2-HMAC-SHA512: 210,000 iterations]
+        PBKDF2_ITERATIONS.put(ByteBuffer.wrap(MagicNumbersConstants.PRIVATE_KEY_V2), 210_000);
+    }
 
     private final byte[] key;
 
@@ -87,10 +99,12 @@ public class Curve25519PrivateKey implements PrivateKey {
             // check magic number
             byte[] mn = new byte[MagicNumbersConstants.PRIVATE_KEY.length];
             IOUtils.readFully(in, mn, 0, mn.length);
-            if (!Arrays.areEqual(mn, MagicNumbersConstants.PRIVATE_KEY)) {
+            ByteBuffer bmn = ByteBuffer.wrap(mn);
+            if (!PBKDF2_ITERATIONS.containsKey(bmn)) {
 
                 throw new IllegalArgumentException("Wrong key file format");
             }
+            int iterations = PBKDF2_ITERATIONS.get(bmn);
 
             // read initial vector
             byte[] iv = new byte[16];
@@ -101,7 +115,7 @@ public class Curve25519PrivateKey implements PrivateKey {
             IOUtils.readFully(in, salt, 0, salt.length);
 
             // initialize cipher
-            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
+            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt, iterations)), iv);
             BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
             cipher.reset();
             cipher.init(false, params);
@@ -124,6 +138,8 @@ public class Curve25519PrivateKey implements PrivateKey {
 
         try {
 
+            ByteBuffer bmn = ByteBuffer.wrap(MagicNumbersConstants.PRIVATE_KEY_V2);
+
             // generate initial vector
             SecureRandom random = SecureRandom.getInstance(ECIESHelper.PRNG_ALGORITHM);
             byte[] iv = new byte[16];
@@ -134,13 +150,13 @@ public class Curve25519PrivateKey implements PrivateKey {
             random.nextBytes(salt);
 
             // initialize cipher
-            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt)), iv);
+            CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt, PBKDF2_ITERATIONS.get(bmn))), iv);
             BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
             cipher.reset();
             cipher.init(true, params);
 
             // write magic number
-            out.write(MagicNumbersConstants.PRIVATE_KEY);
+            out.write(bmn.array());
             out.flush();
 
             // write initial vector and salt
@@ -162,11 +178,11 @@ public class Curve25519PrivateKey implements PrivateKey {
         }
     }
 
-    private static byte[] deriveKey(char[] password, byte[] salt) throws UnsupportedEncodingException {
+    private static byte[] deriveKey(char[] password, byte[] salt, int iterations) throws UnsupportedEncodingException {
 
         // generate key using PBKDF2
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
-        gen.init(new String(password).getBytes(StandardCharsets.UTF_8), salt, PBKDF2_ITERATIONS);
+        gen.init(new String(password).getBytes(StandardCharsets.UTF_8), salt, iterations);
 
         return ((KeyParameter) gen.generateDerivedParameters(AES_KEY_SIZE_BITS)).getKey();
     }

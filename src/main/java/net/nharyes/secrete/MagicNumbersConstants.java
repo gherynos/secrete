@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 Luca Zanconato (<github.com/gherynos>)
+ * Copyright 2015-2023 Luca Zanconato (<github.com/gherynos>)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,4 +27,6 @@ public class MagicNumbersConstants {
     public static final byte[] TEXT_MESSAGE = Hex.decode("5ECC0DE2");
 
     public static final byte[] BINARY_MESSAGE = Hex.decode("5ECC0DE3");
+
+    public static final byte[] PRIVATE_KEY_V2 = Hex.decode("5ECC0DE4");
 }
