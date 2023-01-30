@@ -33,6 +33,7 @@ import net.nharyes.secrete.actions.DecryptAction;
 import net.nharyes.secrete.actions.EncryptAction;
 import net.nharyes.secrete.actions.ExportKeyAction;
 import net.nharyes.secrete.actions.GenKeysAction;
+import net.nharyes.secrete.actions.ChangePwdAction;
 
 import net.nharyes.secrete.ecies.ECIESHelper;
 import org.apache.commons.cli.CommandLine;
@@ -158,6 +159,7 @@ public final class Main {  // NOPMD
         actions.put("encrypt", new EncryptAction());
         actions.put("decrypt", new DecryptAction());
         actions.put("exportKey", new ExportKeyAction());
+        actions.put("changePwd", new ChangePwdAction());
     }
 
     private String getActionsString() {
