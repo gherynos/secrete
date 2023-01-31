@@ -5,7 +5,7 @@ Secrete is a simple ECIES implementation that uses [Curve25519](http://cr.yp.to/
 The [Elliptic Curve Integrated Encryption Scheme](https://en.wikipedia.org/wiki/Integrated_Encryption_Scheme) has been implemented with the following specifications:
 
 | Item                        | Specification                       |
-| --------------------------- | ----------------------------------- |
+|-----------------------------|-------------------------------------|
 | Elliptic Curve              | Curve25519                          |
 | Key Derivation Function     | KDF2                                |
 | Message Authentication Code | HMAC with SHA512                    |
@@ -34,6 +34,14 @@ This will generate the two files `public.key` and `private.key` under the `.secr
 A password will be required to protect the private key.
 
 The private key is stored using PBKDF2 with SHA-512 and AES-256 CBC mode with PKCS7 Padding.
+
+#### Change the private key password
+
+To change the password of the `private.key` under the `.secrete` folder, use:
+
+```shell
+java -jar secrete.jar changePwd
+```
 
 ### Export the public key
 

@@ -59,7 +59,7 @@ public class Curve25519PrivateKey implements PrivateKey {
     static {
 
         PBKDF2_ITERATIONS = new HashMap<>();
-        PBKDF2_ITERATIONS.put(ByteBuffer.wrap(MagicNumbersConstants.PRIVATE_KEY), 5000);
+        PBKDF2_ITERATIONS.put(ByteBuffer.wrap(MagicNumbersConstants.PRIVATE_KEY), 5_000);
 
         // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
         // [PBKDF2-HMAC-SHA512: 210,000 iterations]
