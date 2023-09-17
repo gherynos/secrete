@@ -151,7 +151,7 @@ public class Curve25519PrivateKey implements PrivateKey {
 
             // initialize cipher
             CipherParameters params = new ParametersWithIV(new KeyParameter(deriveKey(password, salt, PBKDF2_ITERATIONS.get(bmn))), iv);
-            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
+            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding());
             cipher.reset();
             cipher.init(true, params);
 
